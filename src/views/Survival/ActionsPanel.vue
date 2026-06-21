@@ -1,8 +1,22 @@
 <template>
   <div class="actions-panel">
     <div class="panel-header">
-      <h3 class="panel-title">⚡ 可执行操作</h3>
-      <p class="panel-subtitle">选择行动来获取资源或建造设施</p>
+      <div class="header-row">
+        <button
+          v-if="survival.lastSourceTab"
+          class="back-btn"
+          @click="goBack"
+        >
+          ← 返回
+        </button>
+        <div class="header-title-wrap">
+          <h3 class="panel-title">⚡ 可执行操作</h3>
+          <p class="panel-subtitle">选择行动来获取资源或建造设施</p>
+        </div>
+      </div>
+      <div v-if="survival.lastSourceTab" class="source-hint">
+        来自{{ getSourceLabel(survival.lastSourceTab) }}
+      </div>
     </div>
 
     <div v-if="survival.activeActions.length > 0" class="active-section">
@@ -150,6 +164,23 @@ const getTimeLeft = (action) => {
   return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`;
 };
 
+const getSourceLabel = (tab) => {
+  const labels = {
+    logs: '日志',
+    resources: '资源',
+    map: '地图'
+  };
+  return labels[tab] || tab;
+};
+
+const goBack = () => {
+  const source = survival.lastSourceTab;
+  survival.setLastSourceTab(null);
+  if (source) {
+    emit('switch-tab', source);
+  }
+};
+
 const handleAction = (action) => {
   if (!canAfford(action)) {
     ElMessage.error('❌ 资源不足，无法执行此操作');
@@ -158,6 +189,7 @@ const handleAction = (action) => {
   const result = survival.performAction(action.id);
   if (result.ok) {
     ElMessage.success(`✅ 开始${action.name}`);
+    survival.setLastSourceTab('actions');
     emit('switch-tab', 'resources');
   } else if (result.error) {
     ElMessage.error(result.error);
@@ -173,6 +205,41 @@ const handleAction = (action) => {
 
 .panel-header {
   margin-bottom: 20px;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  background: rgba(100, 255, 218, 0.1);
+  color: #64ffda;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.back-btn:hover {
+  background: rgba(100, 255, 218, 0.2);
+}
+
+.header-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.source-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #8892b0;
+  padding-left: 0;
 }
 
 .panel-title {

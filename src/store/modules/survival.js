@@ -33,6 +33,9 @@ export default defineStore('survival', () => {
   ]);
 
   const activeActions = ref([]);
+  const selectedCellId = ref(null);
+  const highlightCellId = ref(null);
+  const lastSourceTab = ref(null);
   let logIdCounter = 2;
   let actionIdCounter = 1;
 
@@ -55,6 +58,12 @@ export default defineStore('survival', () => {
   const exploredCount = computed(() => mapGrid.value.filter(c => c.explored).length);
   const totalCells = computed(() => mapGrid.value.length);
   const explorationProgress = computed(() => Math.round((exploredCount.value / totalCells.value) * 100));
+
+  const selectedCell = computed(() =>
+    selectedCellId.value !== null
+      ? mapGrid.value.find(c => c.id === selectedCellId.value) || null
+      : null
+  );
 
   const addMessage = (content, type = 'info', linkedAction = null, linkedCell = null) => {
     const now = new Date();
@@ -194,10 +203,34 @@ export default defineStore('survival', () => {
     }, 60000);
   };
 
+  const setSelectedCell = (cellId) => {
+    selectedCellId.value = cellId;
+  };
+
+  const clearSelectedCell = () => {
+    selectedCellId.value = null;
+  };
+
+  const flashHighlightCell = (cellId) => {
+    highlightCellId.value = cellId;
+    setTimeout(() => {
+      if (highlightCellId.value === cellId) {
+        highlightCellId.value = null;
+      }
+    }, 2000);
+  };
+
+  const setLastSourceTab = (tab) => {
+    lastSourceTab.value = tab;
+  };
+
   const resetGame = () => {
     resources.value = { food: 100, water: 100, wood: 100, stone: 100 };
     resourceChanges.value = { food: 0, water: 0, wood: 0, stone: 0 };
     activeActions.value = [];
+    selectedCellId.value = null;
+    highlightCellId.value = null;
+    lastSourceTab.value = null;
     mapGrid.value = [
       { id: 0, type: 'forest', icon: '🌳', explored: true, name: '西部森林' },
       { id: 1, type: 'forest', icon: '🌳', explored: true, name: '北部森林' },
@@ -222,6 +255,10 @@ export default defineStore('survival', () => {
     activeActions,
     actions,
     resourceConfig,
+    selectedCellId,
+    selectedCell,
+    highlightCellId,
+    lastSourceTab,
     exploredCount,
     totalCells,
     explorationProgress,
@@ -230,6 +267,10 @@ export default defineStore('survival', () => {
     performAction,
     exploreCell,
     startResourceConsumption,
-    resetGame
+    resetGame,
+    setSelectedCell,
+    clearSelectedCell,
+    flashHighlightCell,
+    setLastSourceTab
   };
 });

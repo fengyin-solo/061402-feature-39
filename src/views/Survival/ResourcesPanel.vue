@@ -47,12 +47,16 @@
     </div>
 
     <div v-if="survival.activeActions.length > 0" class="active-actions-section">
-      <h4 class="section-title">⚡ 进行中的行动</h4>
+      <div class="section-header">
+        <h4 class="section-title">⚡ 进行中的行动</h4>
+        <button class="view-all-btn" @click="goToActions">查看全部 →</button>
+      </div>
       <div class="active-actions-list">
         <div
           v-for="action in survival.activeActions"
           :key="action.instanceId"
           class="active-action-item"
+          @click="goToActions"
         >
           <div class="action-icon-small">{{ action.icon }}</div>
           <div class="action-progress-info">
@@ -93,6 +97,8 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useSurvivalStore } from '../../store';
 
+const emit = defineEmits(['switch-tab']);
+
 const survival = useSurvivalStore();
 const now = ref(Date.now());
 let timer = null;
@@ -118,6 +124,11 @@ const getTimeLeft = (action) => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
+};
+
+const goToActions = () => {
+  survival.setLastSourceTab('resources');
+  emit('switch-tab', 'actions');
 };
 </script>
 
@@ -262,10 +273,32 @@ const getTimeLeft = (action) => {
 }
 
 .section-title {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 15px;
   color: #ccd6f6;
   font-weight: 600;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.view-all-btn {
+  background: none;
+  border: none;
+  color: #64ffda;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: opacity 0.2s ease;
+}
+
+.view-all-btn:hover {
+  opacity: 0.8;
 }
 
 .active-actions-section {
@@ -286,6 +319,14 @@ const getTimeLeft = (action) => {
   border: 1px solid rgba(100, 255, 218, 0.2);
   border-radius: 10px;
   padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.active-action-item:hover {
+  background: rgba(100, 255, 218, 0.08);
+  border-color: rgba(100, 255, 218, 0.4);
+  transform: translateX(2px);
 }
 
 .action-icon-small {

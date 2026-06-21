@@ -5,7 +5,7 @@
       :key="tab.key"
       class="tab-item"
       :class="{ active: modelValue === tab.key }"
-      @click="$emit('update:modelValue', tab.key)"
+      @click="handleTabClick(tab.key)"
     >
       <div class="tab-icon">
         <span class="icon-text">{{ tab.icon }}</span>
@@ -27,9 +27,17 @@ const props = defineProps({
   }
 });
 
-defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue']);
 
 const survival = useSurvivalStore();
+
+const handleTabClick = (tabKey) => {
+  if (tabKey !== modelValue) {
+    survival.setLastSourceTab(null);
+    survival.clearSelectedCell();
+  }
+  emit('update:modelValue', tabKey);
+};
 
 const tabs = computed(() => [
   { key: 'resources', label: '资源', icon: '📦', badge: () => 0 },

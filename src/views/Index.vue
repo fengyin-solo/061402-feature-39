@@ -28,11 +28,11 @@
         <ResourcesPanel
           v-if="activeTab === 'resources'"
           key="resources"
+          @switch-tab="switchTab"
         />
         <MapPanel
           v-else-if="activeTab === 'map'"
           key="map"
-          ref="mapPanelRef"
           @switch-tab="switchTab"
         />
         <ActionsPanel
@@ -44,7 +44,6 @@
           v-else-if="activeTab === 'logs'"
           key="logs"
           @switch-tab="switchTab"
-          @select-cell="handleSelectCell"
         />
       </transition>
       <CommandTabBar v-model="activeTab" />
@@ -60,7 +59,7 @@
 
         <div class="desktop-center">
           <div class="panel-wrapper">
-            <MapPanel ref="mapPanelRef" @switch-tab="switchTab" />
+            <MapPanel @switch-tab="switchTab" />
           </div>
         </div>
 
@@ -73,7 +72,7 @@
 
       <div class="desktop-bottom">
         <div class="panel-wrapper logs-wrapper">
-          <LogsPanel @switch-tab="switchTab" @select-cell="handleSelectCell" />
+          <LogsPanel @switch-tab="switchTab" />
         </div>
       </div>
     </div>
@@ -93,7 +92,6 @@ import LogsPanel from './Survival/LogsPanel.vue';
 const survival = useSurvivalStore();
 const activeTab = ref('resources');
 const isMobile = ref(false);
-const mapPanelRef = ref(null);
 
 const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -101,15 +99,6 @@ const checkMobile = () => {
 
 const switchTab = (tab) => {
   activeTab.value = tab;
-};
-
-const handleSelectCell = (cellId) => {
-  if (mapPanelRef.value && mapPanelRef.value.selectCell) {
-    const cell = survival.mapGrid.find(c => c.id === cellId);
-    if (cell) {
-      mapPanelRef.value.selectCell(cell);
-    }
-  }
 };
 
 const handleReset = () => {
@@ -123,6 +112,7 @@ const handleReset = () => {
     }
   ).then(() => {
     survival.resetGame();
+    activeTab.value = 'resources';
   }).catch(() => {});
 };
 

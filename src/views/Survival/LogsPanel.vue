@@ -91,9 +91,11 @@ const getTypeIcon = (type) => {
 
 const handleLogClick = (log) => {
   if (log.linkedCell !== null) {
-    emit('select-cell', log.linkedCell);
+    survival.setLastSourceTab('logs');
+    survival.setSelectedCell(log.linkedCell);
     emit('switch-tab', 'map');
   } else if (log.linkedAction !== null) {
+    survival.setLastSourceTab('logs');
     emit('switch-tab', 'actions');
   }
 };
